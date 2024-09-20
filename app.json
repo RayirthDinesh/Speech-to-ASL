@@ -1,6 +1,7 @@
 {
   "expo": {
-    "name": "app",
+    "name": "ASLify",
+    "displayName": "ASLify",
     "slug": "app",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -19,7 +20,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.rayirth.app"
     },
     "web": {
       "bundler": "metro",
@@ -27,10 +29,26 @@
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
-      "expo-router"
+      "expo-router",
+      [
+        "@react-native-voice/voice",
+        {
+          "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone",
+          "speechRecognitionPermission": "Allow $(PRODUCT_NAME) to securely recognize user speech"
+        }
+      ],
+      "expo-font"
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "25cdcd36-9915-4e07-8a93-a5b1b27b421f"
+      }
     }
   }
 }
