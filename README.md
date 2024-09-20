@@ -1,3 +1,5 @@
+ASLify App created by Rayirth Dinesh and Sami Uddin
+
 Step 1: Create a new React Native Project
 - npx create-expo-app@latest
 
