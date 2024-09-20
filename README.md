@@ -572,6 +572,7 @@ Step 5: Generate Android folder to download app:
 - npx expo run:android
   
 Step 6: Run the Development server to run it on Andriod Emulator or an Android device:
+- npm install --global eas-cli 
 - eas build --profile development --platform android
 
 Step 7: Download aab file and convert it to an APK and run the app on your android device
