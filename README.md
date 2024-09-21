@@ -2,6 +2,7 @@ ASLify App created by Rayirth Dinesh and Sami Uddin
 
 Step 1: Create a new React Native Project
 - npx create-expo-app@latest
+- cd into directory
 
 Step 2: Convert tsx files in app folder into js
 - index.tsx to index.js
