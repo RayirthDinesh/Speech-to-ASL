@@ -1,20 +1,22 @@
-ASLify App created by Rayirth Dinesh and Sami Uddin
+**ASLify App created by Rayirth Dinesh and Sami Uddin**
 
-Step 1: Create a new React Native Project
+https://github.com/user-attachments/assets/98d2ff6f-e830-4526-9201-b8514cd9e235
+
+**Step 1:** Create a new React Native Project
 - npx create-expo-app@latest
 - cd into directory
 
-Step 2: Convert tsx files in app folder into js
+**Step 2:** Convert tsx files in app folder into js
 - index.tsx to index.js
 - delete all the files in the tabs folder expect index.js
 - move index.js outside the tab folder and delete the tabs folder
 - delete the other files in the app folder (
 only leave the index.js file)
 
-Step 3: Install the necessary packages
+**Step 3:** Install the necessary packages
 - Use npm install react, react-native, @react-native-voice/voice, expo-av
 
-Step 4: Paste Code onto index.js
+**Step 4:** Paste Code onto index.js
 ```
 
 
@@ -569,11 +571,15 @@ const pickerSelectStyles = StyleSheet.create({
 
 export default App;
 ```
-Step 5: Generate Android folder to download app:
+**Step 5:** Install Android Studio
+- Open a virtual device (reccomend Pixel 4 API 35)
+- Restart Computer
+
+**Step 5:** Generate Android folder to download app:
 - npx expo run:android
   
-Step 6: Run the Development server to run it on Andriod Emulator or an Android device:
+**Step 6:** Run the Development server to run it on Andriod Emulator or an Android device:
 - npm install --global eas-cli 
 - eas build --profile development --platform android
 
-Step 7: Download aab file and convert it to an APK and run the app on your android device
+**Step 7:** Download aab file and convert it to an APK and run the app on your android device
