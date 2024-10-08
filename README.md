@@ -1,6 +1,6 @@
 **ASLify App created by Rayirth Dinesh and Sami Uddin**
 
-ASLify website:https://shugga228.github.io/ASLifyWeb/
+ASLify website: https://shugga228.github.io/ASLifyWeb/
 
 https://github.com/user-attachments/assets/98d2ff6f-e830-4526-9201-b8514cd9e235
 
