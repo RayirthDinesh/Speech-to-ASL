@@ -1,5 +1,7 @@
 **ASLify App created by Rayirth Dinesh and Sami Uddin**
 
+ASLify website:https://shugga228.github.io/ASLifyWeb/
+
 https://github.com/user-attachments/assets/98d2ff6f-e830-4526-9201-b8514cd9e235
 
 **Step 1:** Create a new React Native Project
@@ -19,8 +21,6 @@ only leave the index.js file)
 **Step 4:** Paste Code onto index.js
 ```
 
-
-
 import React, { useState, useRef, useEffect } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, Button, TextInput, Keyboard } from 'react-native';
 import Voice from '@react-native-voice/voice';
@@ -29,6 +29,7 @@ import { Audio, Video } from 'expo-av';
 
 
 const App = () => {
+  const [titleText, setTitleText] = useState('Speech')
   const [showTextInput, setShowTextInput] = useState(false);
   const [showSpeakerOutput, setShowSpeakerOutput] = useState(false);
   const [showSpeaker, setShowSpeaker] = useState(false);
@@ -56,7 +57,7 @@ const App = () => {
     Voice.onSpeechStart = () => setIsRecording(true);
     Voice.onSpeechEnd = () => setIsRecording(false);
     Voice.onSpeechError = (err) => setSpeechError(err.error);
-    Voice.onSpeechResults = (result) => setTextHolder(event?.value?.[0] || '');
+    Voice.onSpeechResults = (result) => setTextHolder(result.value[0]);
 
     return () => {
       Voice.destroy().then(Voice.removeAllListeners);
@@ -66,12 +67,14 @@ const App = () => {
 
 
   const handleShowTextInput = () => {
+    setTitleText('Text');
     setShowTextInput(true);
     setShowSpeaker(false);
     setShowSpeakerOutput(false);
   };
 
   const handleShowSpeaker = () => {
+    setTitleText('Speech');
     setShowSpeaker(true);
     setShowTextInput(false);
     setShowSpeakerOutput(true);
@@ -309,6 +312,9 @@ const App = () => {
   const startRecording = async () => {
     try {
       await Voice.start('en-US');
+      setRecordButtonVisible(false);
+      setRecordingStatus('recording');
+      setTranscribeButtonVisible(true);
     } catch (err) {
       setSpeechError(err.message);
     }
@@ -357,17 +363,12 @@ const App = () => {
   };
 
   const renderRecordings = () => {
-    if (audioData) {
+    if (recordingStatus === 'idle' && isRecording === false && transcribeButtonVisible===true) {
       return (
         <View style={styles.row}>
-          <Text style={[styles.fill, styles.whiteText]}>
-            Recording - {getDurationFormatted(audioData.duration)}
-          </Text>
-          <Button style={styles.button} onPress={() => audioData.sound.replayAsync()} title="Play"></Button>
           <Button style={styles.button} onPress={clearRecordings} title="Clear"></Button>
-          {transcribeButtonVisible && (
-            <Button style={styles.button} onPress={transcribeAudio} title="Transcribe"></Button>
-          )}
+          <Button style={styles.button} onPress={transcribeAudio} title="Transcribe"></Button>
+          
         </View>
       );
     }
@@ -388,13 +389,15 @@ const App = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Speech to ASL</Text>
+      <Text style={styles.title}>ASLify</Text>
+      <Text style={styles.subtitle}>{titleText} to ASL</Text>
+      
       <TouchableOpacity style={[styles.button, styles.greenButton]} onPress={handleShowTextInput}>
         <Text style={styles.buttonText}>Show Text Input</Text>
       </TouchableOpacity>
       <TouchableOpacity style={[styles.button, styles.greenButton]} onPress={handleShowSpeaker}>
         <Text style={styles.buttonText}>Show Speaker</Text>
-        <Text>{speechError}</Text>
+        
       </TouchableOpacity>
       
 
@@ -477,7 +480,15 @@ const styles = StyleSheet.create({
   },
   title: {
     textAlign: 'center',
-    fontSize: 28,
+    fontSize: 40,
+    color: '#FFF',
+    marginBottom: 70,
+    marginTop: -400,
+    fontWeight: 'bold',
+  },
+  subtitle:{
+    textAlign: 'center',
+    fontSize: 20,
     color: '#FFF',
     marginBottom: 30,
     marginTop: -50,
