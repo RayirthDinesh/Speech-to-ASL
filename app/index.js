@@ -1,13 +1,15 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, Button, TextInput, Keyboard } from 'react-native';
-//import Voice from '@react-native-voice/voice';
+import Voice from '@react-native-voice/voice';
+
 import { Audio, Video } from 'expo-av';
 
 
 const App = () => {
-  const [showTextInput, setShowTextInput] = useState(true);
-
+  const [titleText, setTitleText] = useState('Speech')
+  const [showTextInput, setShowTextInput] = useState(false);
+  const [showSpeakerOutput, setShowSpeakerOutput] = useState(false);
+  const [showSpeaker, setShowSpeaker] = useState(false);
   const [text, setText] = useState('');
   const [recording, setRecording] = useState(null);
   const [recordingStatus, setRecordingStatus] = useState('idle');
@@ -22,11 +24,39 @@ const App = () => {
   const [error, setError] = useState(false);
   const [errorCheck, setErrorCheck] = useState(false);
   const [synonym, setSynonym] = useState('')
+  const [textHolder, setTextHolder] = useState('');
   const videoRef = useRef(null);
 
+  const [isRecording, setIsRecording] = useState(false);
+  const [speechError, setSpeechError] = useState('');
+
+  useEffect(() => {
+    Voice.onSpeechStart = () => setIsRecording(true);
+    Voice.onSpeechEnd = () => setIsRecording(false);
+    Voice.onSpeechError = (err) => setSpeechError(err.error);
+    Voice.onSpeechResults = (result) => setTextHolder(result.value[0]);
+
+    return () => {
+      Voice.destroy().then(Voice.removeAllListeners);
+    };
+  }, []);
 
 
 
+  const handleShowTextInput = () => {
+    setTitleText('Text');
+    setShowTextInput(true);
+    setShowSpeaker(false);
+    setShowSpeakerOutput(false);
+  };
+
+  const handleShowSpeaker = () => {
+    setTitleText('Speech');
+    setShowSpeaker(true);
+    setShowTextInput(false);
+    setShowSpeakerOutput(true);
+
+  };
 
   const handleConvertButtonClick = async () => {
     setErrorCheck(false);
@@ -256,8 +286,44 @@ const App = () => {
 
   };
 
+  const startRecording = async () => {
+    try {
+      await Voice.start('en-US');
+      setRecordButtonVisible(false);
+      setRecordingStatus('recording');
+      setTranscribeButtonVisible(true);
+    } catch (err) {
+      setSpeechError(err.message);
+    }
+  };
 
+  const stopRecording = async () => {
+    try {
+      await Voice.stop();
+      setRecordingStatus('idle');
+      setTranscribeButtonVisible(true);
+      setIsRecording(false); 
+    } catch (err) {
+      setSpeechError(err.message);
 
+    }
+  };
+
+  const transcribeAudio = async () => {
+    try {
+      setText(textHolder)
+
+    } catch (error) {
+      console.error('Failed to transcribe audio', error.message);
+    }
+  };
+
+  const clearRecordings = () => {
+    setText('');
+    setRecordButtonVisible(true);
+    setTranscribeButtonVisible(false);
+
+  };
 
   const renderRecordingControls = () => {
     if (recordingStatus === 'idle' && recordButtonVisible) {
@@ -273,21 +339,65 @@ const App = () => {
     return null;
   };
 
+  const renderRecordings = () => {
+    if (recordingStatus === 'idle' && isRecording === false && transcribeButtonVisible===true) {
+      return (
+        <View style={styles.row}>
+          <Button style={styles.button} onPress={clearRecordings} title="Clear"></Button>
+          <Button style={styles.button} onPress={transcribeAudio} title="Transcribe"></Button>
+          
+        </View>
+      );
+    }
+    return null;
+  };
 
+  const getDurationFormatted = (millis) => {
+    if (millis === undefined || millis === null) {
+      return '0:00';
+    }
+
+    const minutes = millis / 1000 / 60;
+    const minutesDisplay = Math.floor(minutes);
+    seconds = Math.round((minutes - minutesDisplay) * 60);
+    const secondsDisplay = seconds < 10 ? `0${seconds}` : seconds;
+    return `${minutesDisplay}:${secondsDisplay}`;
+  };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Speech to ASL</Text>
+      <Text style={styles.title}>ASLify</Text>
+      <Text style={styles.subtitle}>{titleText} to ASL</Text>
+      
+      <TouchableOpacity style={[styles.button, styles.greenButton]} onPress={handleShowTextInput}>
+        <Text style={styles.buttonText}>Show Text Input</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={[styles.button, styles.greenButton]} onPress={handleShowSpeaker}>
+        <Text style={styles.buttonText}>Show Speaker</Text>
+        
+      </TouchableOpacity>
+      
 
-      <TextInput
-        style={styles.textBox}
-        placeholder="Type your text here"
-        placeholderTextColor="#fff"
-        multiline
-        value={text}
-        onChangeText={setText}
-      />
-
+      {showTextInput && (
+        <TextInput
+          style={styles.textBox}
+          placeholder="Type your text here"
+          placeholderTextColor="#fff"
+          multiline
+          value={text}
+          onChangeText={setText}
+        />
+      )}
+      {showSpeakerOutput && (
+        <TextInput
+          style={styles.textBox}
+          placeholder="Your speech will appear here"
+          placeholderTextColor="#fff"
+          multiline
+          value={text}
+          onChangeText={setText}
+        />
+      )}
       {playing && (
         <View>
           <Video
@@ -319,12 +429,19 @@ const App = () => {
         </View>
       )}
 
+      {showSpeaker && (
+        <View>
+          {renderRecordingControls()}
+          {renderRecordings()}
 
-      {!playing && (
+        </View>
+
+      )}
+      {(showSpeaker || showTextInput) && !playing && (
         <Button title="Convert" color="#4CAF50" onPress={() => {
           handleConvertButtonClick();
-          Keyboard.dismiss();
-        }} />
+          Keyboard.dismiss();}}/>
+         
       )}
     </View>
   );
@@ -340,7 +457,15 @@ const styles = StyleSheet.create({
   },
   title: {
     textAlign: 'center',
-    fontSize: 28,
+    fontSize: 40,
+    color: '#FFF',
+    marginBottom: 70,
+    marginTop: -400,
+    fontWeight: 'bold',
+  },
+  subtitle:{
+    textAlign: 'center',
+    fontSize: 20,
     color: '#FFF',
     marginBottom: 30,
     marginTop: -50,
@@ -404,7 +529,32 @@ const styles = StyleSheet.create({
   },
 });
 
-
+const pickerSelectStyles = StyleSheet.create({
+  inputIOS: {
+    fontSize: 16,
+    paddingVertical: 12,
+    paddingHorizontal: 10,
+    borderWidth: 1,
+    borderColor: 'gray',
+    borderRadius: 8,
+    color: 'white',
+    paddingRight: 30,
+    backgroundColor: '#444',
+    marginBottom: 20,
+  },
+  inputAndroid: {
+    fontSize: 16,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    borderWidth: 0.5,
+    borderColor: 'purple',
+    borderRadius: 8,
+    color: 'white',
+    paddingRight: 30,
+    backgroundColor: '#444',
+    marginBottom: 20,
+  },
+});
 
 
 export default App;
