@@ -2,7 +2,7 @@
 
 ASLify website: https://shugga228.github.io/ASLifyWeb/
 
-https://github.com/user-attachments/assets/98d2ff6f-e830-4526-9201-b8514cd9e235
+[https://github.com/user-attachments/assets/98d2ff6f-e830-4526-9201-b8514cd9e235](https://github.com/user-attachments/assets/fd25aa68-1326-44a9-93e8-3323d3cb45ac)
 
 **Step 1:** Create a new React Native Project
 - npx create-expo-app@latest
