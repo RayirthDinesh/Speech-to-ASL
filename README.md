@@ -22,9 +22,8 @@ only leave the index.js file)
 ```
 
 import React, { useState, useRef, useEffect } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Button, TextInput, Keyboard } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Button, TextInput, Keyboard, Image } from 'react-native';
 import Voice from '@react-native-voice/voice';
-
 import { Audio, Video } from 'expo-av';
 
 
@@ -36,7 +35,6 @@ const App = () => {
   const [text, setText] = useState('');
   const [recording, setRecording] = useState(null);
   const [recordingStatus, setRecordingStatus] = useState('idle');
-  const [audioData, setAudioData] = useState(null);
   const [recordButtonVisible, setRecordButtonVisible] = useState(true);
   const [transcribeButtonVisible, setTranscribeButtonVisible] = useState(false);
   const [playing, setPlaying] = useState(false);
@@ -46,12 +44,14 @@ const App = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [error, setError] = useState(false);
   const [errorCheck, setErrorCheck] = useState(false);
-  const [synonym, setSynonym] = useState('')
+ 
   const [textHolder, setTextHolder] = useState('');
   const videoRef = useRef(null);
-
+  const [currentWord, setCurrentWord] = useState(''); // New state for current word
   const [isRecording, setIsRecording] = useState(false);
   const [speechError, setSpeechError] = useState('');
+  const [warningMessage, setWarningMessage] = useState("");
+
 
   useEffect(() => {
     Voice.onSpeechStart = () => setIsRecording(true);
@@ -82,6 +82,7 @@ const App = () => {
   };
 
   const handleConvertButtonClick = async () => {
+    setCurrentWord("");
     setErrorCheck(false);
     setError(false);
     if (recording) {
@@ -249,7 +250,9 @@ const App = () => {
 
     for (let i = 0; i < textInputArray.length; i++) {
       if (textInputArray[i].length > 2 || textInputArray[i] == "i") {
+        
         if (textInputArray[i] == "i") {
+          
           videos.push(`https://media.signbsl.com/videos/asl/valleybible/mp4/I%20am.mp4`);
           continue;
         }
@@ -264,50 +267,67 @@ const App = () => {
     }
 
     setVideoQueue(videos);
-
+    
 
     setCurrentIndex(0);
     if (videos.length > 0) {
       setVideoUrl(videos[0]);
       setPlaying(true);
+      setCurrentWord(textInputArray[0]);
+      
     }
   };
 
-  const showNextVideo = () => {
 
-    if ((currentIndex < videoQueue.length - 1)) {
+  const showNextVideo = () => {
+    
+
+    if (currentIndex < videoQueue.length - 1) {
+  
       const nextIndex = currentIndex + 1;
-      setVideoUrl(videoQueue[nextIndex]);
+      const nextVideoUrl = videoQueue[nextIndex];
+      const lastSlashIndex = nextVideoUrl.lastIndexOf("/") + 1;
+      const dotIndex = nextVideoUrl.lastIndexOf(".");
+      const substring = nextVideoUrl.substring(lastSlashIndex, dotIndex);
+  
+      console.log("substring:", substring);
+  
+      setCurrentWord(substring);
+  
+      if (nextVideoUrl === "https://media.signbsl.com/videos/asl/valleybible/mp4/I%20am.mp4") {
+        setCurrentWord("I");
+      }
+  
+      setVideoUrl(nextVideoUrl);
       setCurrentIndex(nextIndex);
       setErrorCheck(false);
-    }
-
-    else {
+    } else {
       setPlaying(false);
     }
   };
+    
+  
 
 
   const alternativeVideo = () => {
     setErrorCheck(true);
     const word = videoUrl.substring(37);
     setVideoUrl(`https://media.signbsl.com/videos/asl/startasl/mp4/${word}`);
-
+    setCurrentWord(word.substring(0, word.length-4));
     setPlaying(true);
     setError(false);
   };
 
   const handleError = (error) => {
     setError(true);
-    alternativeVideo();
-    if (errorCheck) {
+    if (!errorCheck) {
+      alternativeVideo();
+    } else {
       showNextVideo();
-      console.error("Could not play: ", videoUrl.substring(50));
-      console.log("Could not play: ", videoUrl.substring(50));
+
     }
-
-
   };
+  
 
   const startRecording = async () => {
     try {
@@ -389,17 +409,19 @@ const App = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>ASLify</Text>
+      <View style={styles.titleContainer}>
+        <Image source={require('./images/ASLifyIcon.png')} style={styles.image}/>
+        <Text style={styles.title}>ASLify</Text>
+      </View>
+
       <Text style={styles.subtitle}>{titleText} to ASL</Text>
-      
       <TouchableOpacity style={[styles.button, styles.greenButton]} onPress={handleShowTextInput}>
         <Text style={styles.buttonText}>Show Text Input</Text>
       </TouchableOpacity>
       <TouchableOpacity style={[styles.button, styles.greenButton]} onPress={handleShowSpeaker}>
         <Text style={styles.buttonText}>Show Speaker</Text>
-        
       </TouchableOpacity>
-      
+     
 
       {showTextInput && (
         <TextInput
@@ -445,13 +467,24 @@ const App = () => {
             onPlaybackStatusUpdate={(status) => {
               if (status.didJustFinish) {
                 videoRef.current.setPositionAsync(0);
+                
                 showNextVideo();
               }
             }}
+            
           />
+          <Text style={styles.warningText}>{warningMessage}</Text>
+          
+        </View>
+      
+      )}
+      {playing && (
+        <View style ={styles.sub}>
+          <Text style={styles.subtitleVid}>
+            {currentWord}
+          </Text>
         </View>
       )}
-
       {showSpeaker && (
         <View>
           {renderRecordingControls()}
@@ -466,116 +499,157 @@ const App = () => {
           Keyboard.dismiss();}}/>
          
       )}
+      
     </View>
+
+    
   );
 };
 
-const styles = StyleSheet.create({
 
+
+// Make sure to use a custom font like 'Poppins' or 'Roboto' if you want that cool modern look.
+// You can load these fonts via the useFonts hook or through expo-font in a real React Native project.
+
+const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1E1E1E',
+    backgroundColor: '#1E293B', // Slightly darker for deeper contrast
     padding: 20,
+    justifyContent: 'center',
+  },
+  image: {
+    width: 70,  // Small image width
+    height: 70, // Small image height
+    borderRadius: 5, // Optional: rounded corners
+   
+  },
+
+  warningText: {
+    color: "red",
+    fontWeight: "bold",
+  },
+  titleContainer: {
+    flexDirection: 'row', // Side-by-side layout
+    alignItems: 'center', // Vertically center both items
+    padding: 10,
+    marginBottom: 60,
+    marginTop: -150,
     justifyContent: 'center',
   },
   title: {
     textAlign: 'center',
-    fontSize: 40,
-    color: '#FFF',
-    marginBottom: 70,
-    marginTop: -400,
+    fontSize: 42,
+    color: '#F3F4F6', // Soft white for good contrast
+    padding: 10,
     fontWeight: 'bold',
+    fontFamily: 'Poppins_700Bold', // Cool custom font like Poppins
+    letterSpacing: 1.3,
   },
-  subtitle:{
+  subtitle: {
     textAlign: 'center',
     fontSize: 20,
-    color: '#FFF',
-    marginBottom: 30,
-    marginTop: -50,
     fontWeight: 'bold',
+    color: '#D1D5DB', // Subtle gray-blue tone
+    marginBottom: 25,
+    marginTop: -20,
   },
+
+ 
   textBox: {
     width: '100%',
-    height: 50,
-    backgroundColor: '#444',
-    color: '#FFF',
+    height: 55,
+    backgroundColor: '#475569', // Muted blue-gray
+    color: '#F9FAFB', // Softer white for text
     marginBottom: 20,
     padding: 15,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#666',
+    borderRadius: 12, // Smooth rounded edges
+    borderWidth: 2,
+    borderColor: '#93C5FD', // Light blue border for modern touch
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.5,
+    shadowRadius: 4,
+    elevation: 6,
+    fontFamily: 'Poppins_400Regular', // Light, modern font
+    fontSize: 16,
   },
   button: {
-    backgroundColor: '#3498db',
-    padding: 15,
-    borderRadius: 8,
+    backgroundColor: '#3B82F6', // Vivid blue for primary button
+    padding: 18,
+    borderRadius: 10,
     marginBottom: 15,
     alignItems: 'center',
     justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: '#60A5FA', // Lighter blue border
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.8,
-    shadowRadius: 2,
-    elevation: 5,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.5,
+    shadowRadius: 6,
+    elevation: 8,
   },
-  greenButton: {
-    backgroundColor: '#4CAF50',
+  subtitleVid: {
+    fontSize: 17, 
+    color: 'white',
+  },
+  sub: {
+    alignItems: 'center',
+    
+
+  },
+
+   secondaryButton: {
+    backgroundColor: '#F59E0B', // Warm coral for secondary button
+    padding: 18,
+    borderRadius: 10,
+    marginBottom: 15,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: '#FBBF24', // Lighter orange border
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.5,
+    shadowRadius: 6,
+    elevation: 8,
   },
   buttonText: {
-    color: '#FFF',
+    color: '#F9FAFB',
     textAlign: 'center',
     fontSize: 18,
     fontWeight: '600',
+    fontFamily: 'Poppins_600SemiBold', // Modern font for buttons
+    letterSpacing: 1.1,
   },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 10,
+    marginBottom: 15,
+  },
+  label: {
+    color: '#93C5FD', // Light blue for labels
+    marginTop: 12,
+    marginBottom: 8,
+    fontSize: 16,
+    fontWeight: '500',
+    fontFamily: 'Poppins_500Medium', // Stylish font for labels
   },
   whiteText: {
-    color: '#FFF',
+    color: '#F9FAFB',
+    fontSize: 16,
+    fontWeight: '400',
+    fontFamily: 'Poppins_400Regular',
   },
   picker: {
     inputIOS: {
-      color: 'white',
+      color: '#F9FAFB',
+      fontFamily: 'Poppins_400Regular',
     },
     inputAndroid: {
-      color: 'white',
+      color: '#F9FAFB',
+      fontFamily: 'Poppins_400Regular',
     },
-  },
-  label: {
-    color: '#FFF',
-    marginTop: 10,
-    marginBottom: 5,
-    fontSize: 16,
-    fontWeight: '500',
-  },
-});
-
-const pickerSelectStyles = StyleSheet.create({
-  inputIOS: {
-    fontSize: 16,
-    paddingVertical: 12,
-    paddingHorizontal: 10,
-    borderWidth: 1,
-    borderColor: 'gray',
-    borderRadius: 8,
-    color: 'white',
-    paddingRight: 30,
-    backgroundColor: '#444',
-    marginBottom: 20,
-  },
-  inputAndroid: {
-    fontSize: 16,
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-    borderWidth: 0.5,
-    borderColor: 'purple',
-    borderRadius: 8,
-    color: 'white',
-    paddingRight: 30,
-    backgroundColor: '#444',
-    marginBottom: 20,
   },
 });
 
