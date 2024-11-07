@@ -25,7 +25,7 @@ const App = () => {
  
   const [textHolder, setTextHolder] = useState('');
   const videoRef = useRef(null);
-  const [currentWord, setCurrentWord] = useState(''); // New state for current word
+  const [currentWord, setCurrentWord] = useState(''); 
   const [isRecording, setIsRecording] = useState(false);
   const [speechError, setSpeechError] = useState('');
   const [warningMessage, setWarningMessage] = useState("");
@@ -485,22 +485,17 @@ const App = () => {
 };
 
 
-
-// Make sure to use a custom font like 'Poppins' or 'Roboto' if you want that cool modern look.
-// You can load these fonts via the useFonts hook or through expo-font in a real React Native project.
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1E293B', // Slightly darker for deeper contrast
+    backgroundColor: '#1E293B', 
     padding: 20,
     justifyContent: 'center',
   },
   image: {
-    width: 70,  // Small image width
-    height: 70, // Small image height
-    borderRadius: 5, // Optional: rounded corners
-   
+    width: 70,
+    height: 70, 
+    borderRadius: 5, 
   },
 
   warningText: {
@@ -508,8 +503,8 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   titleContainer: {
-    flexDirection: 'row', // Side-by-side layout
-    alignItems: 'center', // Vertically center both items
+    flexDirection: 'row', 
+    alignItems: 'center', 
     padding: 10,
     marginBottom: 60,
     marginTop: -150,
@@ -518,17 +513,17 @@ const styles = StyleSheet.create({
   title: {
     textAlign: 'center',
     fontSize: 42,
-    color: '#F3F4F6', // Soft white for good contrast
+    color: '#F3F4F6', 
     padding: 10,
     fontWeight: 'bold',
-    fontFamily: 'Poppins_700Bold', // Cool custom font like Poppins
+    fontFamily: 'Poppins_700Bold', 
     letterSpacing: 1.3,
   },
   subtitle: {
     textAlign: 'center',
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#D1D5DB', // Subtle gray-blue tone
+    color: '#D1D5DB', 
     marginBottom: 25,
     marginTop: -20,
   },
@@ -537,30 +532,30 @@ const styles = StyleSheet.create({
   textBox: {
     width: '100%',
     height: 55,
-    backgroundColor: '#475569', // Muted blue-gray
-    color: '#F9FAFB', // Softer white for text
+    backgroundColor: '#475569', 
+    color: '#F9FAFB', 
     marginBottom: 20,
     padding: 15,
-    borderRadius: 12, // Smooth rounded edges
+    borderRadius: 12, 
     borderWidth: 2,
-    borderColor: '#93C5FD', // Light blue border for modern touch
+    borderColor: '#93C5FD', 
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.5,
     shadowRadius: 4,
     elevation: 6,
-    fontFamily: 'Poppins_400Regular', // Light, modern font
+    fontFamily: 'Poppins_400Regular', 
     fontSize: 16,
   },
   button: {
-    backgroundColor: '#3B82F6', // Vivid blue for primary button
+    backgroundColor: '#3B82F6', 
     padding: 18,
     borderRadius: 10,
     marginBottom: 15,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 2,
-    borderColor: '#60A5FA', // Lighter blue border
+    borderColor: '#60A5FA', 
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.5,
@@ -578,14 +573,14 @@ const styles = StyleSheet.create({
   },
 
    secondaryButton: {
-    backgroundColor: '#F59E0B', // Warm coral for secondary button
+    backgroundColor: '#F59E0B', 
     padding: 18,
     borderRadius: 10,
     marginBottom: 15,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 2,
-    borderColor: '#FBBF24', // Lighter orange border
+    borderColor: '#FBBF24', 
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.5,
@@ -597,7 +592,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 18,
     fontWeight: '600',
-    fontFamily: 'Poppins_600SemiBold', // Modern font for buttons
+    fontFamily: 'Poppins_600SemiBold', 
     letterSpacing: 1.1,
   },
   row: {
@@ -606,12 +601,12 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   label: {
-    color: '#93C5FD', // Light blue for labels
+    color: '#93C5FD', 
     marginTop: 12,
     marginBottom: 8,
     fontSize: 16,
     fontWeight: '500',
-    fontFamily: 'Poppins_500Medium', // Stylish font for labels
+    fontFamily: 'Poppins_500Medium', 
   },
   whiteText: {
     color: '#F9FAFB',
