@@ -2,7 +2,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, Button, TextInput, Keyboard, Image } from 'react-native';
 import Voice from '@react-native-voice/voice';
-import { Audio, Video } from 'expo-av';
+import { Video } from 'expo-av';
 
 
 const App = () => {
